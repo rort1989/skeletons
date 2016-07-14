@@ -28,7 +28,7 @@ T = size(jt_locs{sequence,1},2);
 quat = zeros(4*size(pair_joints,1),T);
 
 for j = 1:size(pair_joints,1)
-    % Get the distance vectors for the input joint and the torso joint
+    %% Get the distance vectors for the input joint and the torso joint
     [vec1_norm,quat_vec1] = extractJointDistances_2Joints(jt_locs,sequence,...
         pair_joints(j,1),pair_joints(j,2)); %frame,frame,
     [vec2_norm,quat_vec2] = extractJointDistances_2Joints(jt_locs,sequence,...
@@ -40,7 +40,7 @@ for j = 1:size(pair_joints,1)
     quat_vec1_norm = bsxfun(@rdivide,quat_vec1,vec1_norm);
     quat_vec2_norm = bsxfun(@rdivide,quat_vec2,vec2_norm);
     
-    % Compute the quaternion from the two normalized vectors
+    %% Compute the quaternion from the two normalized vectors
     quat_xyz = cross(quat_vec1_norm,quat_vec2_norm);
     quat_w = 1 + dot(quat_vec1_norm,quat_vec2_norm);
     
