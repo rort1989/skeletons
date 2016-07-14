@@ -16,7 +16,6 @@
 %                                 each cell contains a D*T matrix, where D
 %                                 = number of joints*3, T = number of frames
 %                                 joints = 25, designed for Kinect 2 joints
-%               status - if set to 1, show progress bar (default:0)
 %
 %OUTPUTS:   joint_orients - cell array containing the joint orientations
 %                           with respect to the torso joint
@@ -24,17 +23,11 @@
 
 function [joint_orients] = extractJointOrientations(joint_locs, status)
 
-if nargin < 2
-    status = 0;
-end
-
 %Resize the joint orientation array to the right number of sequences
 joint_orients = cell(size(joint_locs,1),1);
 
 %Create a progress bar GUI to monitor extraction progress
-if status
-    progress_bar = waitbar(0,'Joint Orientation Feature Extraction Progress');
-end
+% progress_bar = waitbar(0,'Joint Orientation Feature Extraction Progress');
 
 %Populate the joint orientation array
 for sequence = 1:size(joint_locs)
@@ -43,14 +36,10 @@ for sequence = 1:size(joint_locs)
             joint_orients{sequence,1} = extractJointOrientQuat_1Joint(joint_locs,sequence); % {1,frame}(joint,1:4) % should be (joint*4)*num_frame matrix
             % single()
     %Update the progress bar
-    if status
-        waitbar(sequence/size(joint_locs,1));
-    end
+%     waitbar(sequence/size(joint_locs,1));
 end
 
 %Close progress bar GUI and display a message that say extraction complete
-if status
-    close(progress_bar);
-    msgbox('Joint Orientation Feature Extraction Complete!');
-end
+% close(progress_bar);
+% msgbox('Joint Orientation Feature Extraction Complete!');
 end
