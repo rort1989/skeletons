@@ -15,11 +15,13 @@
 %INPUTS:    joint_locs - cell array containing the joint locations where
 %                                 each cell contains a D*T matrix, where D
 %                                 = number of joints*3, T = number of frames
-%                                 joints = 25, designed for Kinect 2 joints
+%                                 joints number = 25, designed for Kinect 2
+%                                 joints. The axis value changes first.
 %               status - if set to 1, show progress bar (default:0)
 %
 %OUTPUTS:   joint_orients - cell array containing the joint orientations
-%                           with respect to the torso joint
+%                           with respect to the torso joint, each cell
+%                           contains a 60*T matrix (15 limbs)
 %************************************************************************
 
 function [joint_orients] = extractJointOrientations(joint_locs, status)
