@@ -60,7 +60,7 @@ for sequence = 1:size(joint_locs,1)
     
     %Update the progress bar
     if status
-        waitbar(sequence/size(joint_locs,1));
+        waitbar(sequence/size(joint_locs,1)); 
     end
 end
 
