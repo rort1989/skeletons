@@ -3,7 +3,7 @@
 %AUTHOR:    Kosta Andoni (kosta.andoni@gmail.com)
 %DATE:      3.29.2016
 %REVISION: Rui Zhao
-%REVISION DATE: 7.13.2016
+%REVISION DATE: 7.16.2016
 %PURPOSE:   Extracts joint orientations in the format:
 %           joint_orients{action_sequence,1}{1,frame}...
 %               (joint,quaternion parameter)
@@ -17,16 +17,18 @@
 %                                 = number of joints*3, T = number of frames
 %                                 joints number = 25, designed for Kinect 2
 %                                 joints. The axis value changes first.
+%               joint_pairs - K*2 matrix where each row specify a pair of
+%                                 joint indices whose orientation is to be computed
 %               status - if set to 1, show progress bar (default:0)
 %
 %OUTPUTS:   joint_orients - cell array containing the joint orientations
 %                           with respect to the torso joint, each cell
-%                           contains a 60*T matrix (15 limbs)
+%                           contains a 1200*T matrix (4*300 pairs of joints)
 %************************************************************************
 
-function [joint_orients] = extractJointOrientations(joint_locs, status)
+function [joint_orients] = extractJointOrientations(joint_locs, joint_pairs, status)
 
-if nargin < 2
+if nargin < 3
     status = 0;
 end
 
@@ -40,10 +42,10 @@ end
 
 %Populate the joint orientation array
 for sequence = 1:size(joint_locs)
-            %Call helper function to calculate the rotation quaternion of
-            %all predefined joints and store it in the array
-            joint_orients{sequence,1} = extractJointOrientQuat_1Joint(joint_locs,sequence); % {1,frame}(joint,1:4) % should be (joint*4)*num_frame matrix
-            % single()
+    %Call helper function to calculate the rotation quaternion of
+    %all predefined joints and store it in the array
+    % should be (# of joint pair*4)*num_frame matrix
+    joint_orients{sequence,1} = extractJointOrientQuat_1Joint(joint_locs,sequence,joint_pairs); % single()
     %Update the progress bar
     if status
         waitbar(sequence/size(joint_locs,1));

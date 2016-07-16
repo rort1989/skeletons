@@ -3,27 +3,41 @@
 %AUTHOR:    Kosta Andoni (kosta.andoni@gmail.com)
 %DATE:      4.12.2016
 %REVISION: Rui Zhao
-%REVISION DATE: 7.13.2016
+%REVISION DATE: 7.16.2016
 %PURPOSE:   Calculate the rotation quaternion of a joint with respect to
 %           the torso joint
 %************************************************************************
 %INPUTS:    jt_locs - cell array containing the joint locations
-%           sequence - sequence of interest
+%               sequence - sequence of interest
+%               pair_joints - Kx2 matrix of K pairs of joints
+%               pair_ref - length 2 vector contains reference joint pair
 %
 %OUTPUTS:   quat - 4KxT rotation quaternion vector of joint with respect
 %                   to the torso joint
 %************************************************************************
 
-function [quat]= extractJointOrientQuat_1Joint(jt_locs,sequence) % enumerate through all the joints
+function [quat]= extractJointOrientQuat_1Joint(jt_locs, sequence, pair_joints, pair_ref)
 
 %Combinations of all reference joints. The joint in column 1 refers to the
 %joint in column 2. Combinations are chosen arbitrarily. In most cases,
 %joint forms vector with another joint on the limb.
 % ref_joints = [1 3;2 3;3 20;4 3;5 7;6 7;7 4;8 1;9 2;10 8;11 9;12 10;13 11;...
 %     14 5;15 6;16 14;17 15;18 16;19 17;20 7];
-pair_joints = [1 13; 1 17; 2 21; 5 6; 5 21; 6 7; 7 8; 9 10; 9 21;
-                   10 11; 11 12; 13 14; 14 15; 17 18; 18 19];
-pair_ref = [1 2];
+% pair_joints = [1 13; 1 17; 2 21; 5 6; 5 21; 6 7; 7 8; 9 10; 9 21;
+%                    10 11; 11 12; 13 14; 14 15; 17 18; 18 19];
+if nargin < 3 % enumerate through all the joints
+    pair_joints = zeros(300,2);
+    count = 0;
+    for i = 1:24
+        for j = i+1:25
+            count = count + 1;
+            pair_joints(count,:) = [i j];
+        end
+    end
+end
+if nargin < 4
+    pair_ref = [1 2];
+end
 T = size(jt_locs{sequence,1},2);
 quat = zeros(4*size(pair_joints,1),T);
 
