@@ -3,7 +3,7 @@
 %AUTHOR:    Kosta Andoni (kosta.andoni@gmail.com)
 %DATE:      3.29.2016
 %REVISION: Rui Zhao
-%REVISION DATE: 7.14.2016
+%REVISION DATE: 7.16.2016
 %PURPOSE:   Extracts joint motions in the format:
 %           joint_motions{action_sequence,1}{1,frame}(joint_A,joint_B)
 %INFO:      The values are the vector magnitude of the distance vector 
@@ -23,9 +23,12 @@
 %                         respect to each other in next frames, each cell
 %                         contains a K*T-stride matrix where K =
 %                         nchoosek(25,2)+25 = 325
+%                  index_lut - 25*25 matrix where the ith row jth entry is
+%                                   the row index of motion between ith
+%                                   joint and jth joint in any cells of joint_motions
 %************************************************************************
 
-function [joint_motions] = extractJointMotions(joint_locs,stride,status)
+function [joint_motions, index_lut] = extractJointMotions(joint_locs,stride,status)
 
 if nargin < 2
     stride = 1;
@@ -36,7 +39,8 @@ end
 
 % for kinect 2
 num_joints = 25;
-
+%Create a look up table of index associated with each row of joint_dists{n}
+index_lut = zeros(num_joints);
 %Resize the joint motion array to the right number of sequences
 joint_motions = cell(size(joint_locs,1),1);
 
@@ -55,6 +59,9 @@ for sequence = 1:size(joint_locs)
         for joint_A = 1:num_joints
             for joint_B = joint_A:num_joints
                 count = count + 1;
+                if sequence == 1 % only compute lookup table onece
+                    index_lut(joint_A,joint_B) = count;
+                end
                 %Call helper function to get distance between two joints
                 %and set distances for the motions
                 [jt_dist,~] = extractJointDistances_2Joints(joint_locs,sequence,joint_A,joint_B,stride);   
