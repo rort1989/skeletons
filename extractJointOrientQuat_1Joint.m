@@ -3,7 +3,7 @@
 %AUTHOR:    Kosta Andoni (kosta.andoni@gmail.com)
 %DATE:      4.12.2016
 %REVISION: Rui Zhao
-%REVISION DATE: 7.16.2016
+%REVISION DATE: 7.20.2016
 %PURPOSE:   Calculate the rotation quaternion of a joint with respect to
 %           the torso joint
 %************************************************************************
@@ -25,16 +25,6 @@ function [quat]= extractJointOrientQuat_1Joint(jt_locs, sequence, pair_joints, p
 %     14 5;15 6;16 14;17 15;18 16;19 17;20 7];
 % pair_joints = [1 13; 1 17; 2 21; 5 6; 5 21; 6 7; 7 8; 9 10; 9 21;
 %                    10 11; 11 12; 13 14; 14 15; 17 18; 18 19];
-if nargin < 3 % enumerate through all the joints
-    pair_joints = zeros(300,2);
-    count = 0;
-    for i = 1:24
-        for j = i+1:25
-            count = count + 1;
-            pair_joints(count,:) = [i j];
-        end
-    end
-end
 if nargin < 4
     pair_ref = [1 2];
 end
@@ -62,7 +52,7 @@ for j = 1:size(pair_joints,1)
     q = [quat_w' quat_xyz']; % quat(1,1) = quat_w;    % quat(1,2:4) = quat_xyz;
     
     %Normalize the quaternion
-    quat(4*j-3:4*j,:) = quatnormalize(q)';
+    quat(4*j-3:4*j,:) = bsxfun(@rdivide, q', sqrt(sum(q.^2, 2))'); % quatnormalize(q);
 
 end
 end

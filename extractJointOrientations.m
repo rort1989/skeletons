@@ -3,7 +3,7 @@
 %AUTHOR:    Kosta Andoni (kosta.andoni@gmail.com)
 %DATE:      3.29.2016
 %REVISION: Rui Zhao
-%REVISION DATE: 7.16.2016
+%REVISION DATE: 7.20.2016
 %PURPOSE:   Extracts joint orientations in the format:
 %           joint_orients{action_sequence,1}{1,frame}...
 %               (joint,quaternion parameter)
@@ -15,7 +15,8 @@
 %INPUTS:    joint_locs - cell array containing the joint locations where
 %                                 each cell contains a D*T matrix, where D
 %                                 = number of joints*3, T = number of frames
-%                                 joints number = 25, designed for Kinect 2
+%                                 joints number = 20 for Kinect 1
+%                                 joints number = 25, for Kinect 2
 %                                 joints. The axis value changes first.
 %               joint_pairs - K*2 matrix where each row specify a pair of
 %                                 joint indices whose orientation is to be computed
@@ -23,7 +24,7 @@
 %
 %OUTPUTS:   joint_orients - cell array containing the joint orientations
 %                           with respect to the torso joint, each cell
-%                           contains a 1200*T matrix (4*300 pairs of joints)
+%                           contains a |4*joint_pairs|*T matrix
 %************************************************************************
 
 function [joint_orients] = extractJointOrientations(joint_locs, joint_pairs, status)
