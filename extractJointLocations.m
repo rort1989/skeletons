@@ -39,7 +39,7 @@ if nargin < 4
     status = 0;
 end
 if nargin < 5
-    normalization = 2;
+    normalization = 1;
 end
 
 %Size the array of cells
