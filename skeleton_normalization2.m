@@ -12,7 +12,6 @@ function x = skeleton_normalization2(jointCords, joint_selected, joint_ref, pair
 IDX = [3*joint_ref-2 3*joint_ref-1 3*joint_ref]; % z coordinate of reference joint
 ref = jointCords(IDX,:);
 ref(isnan(ref)) = 0; % clear corrupted data
-ref(3,ref(3,:)==0) = 1;
 
 % normalizing w.r.t. to reference joint
 % a copy of jointCords subtracting out reference joints
