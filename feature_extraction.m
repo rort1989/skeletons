@@ -69,28 +69,17 @@ function dataset = adder(d1,d2)
 
     n1 = size(d1{1,1});
     n2 = size(d2{1,1});
-    nt = n1(1) + n2(1);
+    nt = n1(1) + n2(1); % dimension of aggregated feature
 
     dataset = cell(c1);
 
     for c = 1:c1(1)
-        tmp_f = size(d2{c,1});
-        tmp = zeros(nt,tmp_f(2));
-        for f = 1:tmp_f(2)
-            for n = 1:nt
-                if n <= n1(1)
-                    if n1(2) == n2(2)
-                        tmp(n,f) = d1{c,1}(n,f);
-                    else
-                        tmp(n,f) = d1{c,1}(n,f+1);
-                    end
-                else
-                    tmp(n,f) = d2{c,1}(n-n1(1),f);
-                end
-                
-            end
-        end
-        dataset{c,1} = tmp;
+        T1 = size(d1{c},2);
+        T2 = size(d2{c},2);
+        T = min(T1,T2);
+        dataset{c} = zeros(nt,T);
+        dataset{c}(1:n1,:) = d1{c}(:,end-T+1:end);
+        dataset{c}(n1+1:nt,:) = d2{c}(:,end-T+1:end);
     end
 end
 
@@ -98,25 +87,16 @@ end
 function hist = skel_ener(data)
     K = numel(data);
     hist = cell(K,1);
+    num_joint = size(data{1},1)/3;
     for k = 1:K
         raw = data{k};
-        num_frame = size(raw,2);
-        num_joint = size(raw,1);
-        num_joint = num_joint/3;
-        hist{k} = zeros([1 num_frame], 'double');
-        hist{k}(1) = 0;
-        
-        for f = 2:num_frame
-            ener = 0;
-            for temp = 1:num_joint
-                X1 = [raw(3*temp-2,f),raw(3*temp-1,f),raw(3*temp,f)];
-                X2 = [raw(3*temp-2,f-1),raw(3*temp-1,f-1),raw(3*temp,f-1)];
-                X = [X1;X2];
-                D = pdist(X,'euclidean');
-                ener = ener+D;
-            end
-            hist{k}(f) = hist{k}(f-1)+ener;
-        end
+        num_frame = size(raw,2);  
+        D = raw(:,2:end) - raw(:,1:end-1);
+        D = reshape(D,3,num_joint*(num_frame-1));
+        D = sqrt(sum(D.^2));
+        D = reshape(D,num_joint,num_frame-1);
+        ener = sum(D);
+        hist{k} = cumsum([0 ener]);
     end
 end
 
@@ -138,36 +118,21 @@ function [desc, O] = flat(dataset,hist)
         %select data of interest
         for t = 1:num_intervals
             [~, frm] = min(abs(energy - t * fstep));
-            %~
             if frm > feature_size(2)-1
                 frm = feature_size(2)-1;
             end
-            %~
-            tmp_features(:,t,nframe+1) = dataset{k,1}(:,frm);
-            
-            for tmpf = (nframe+2):(2*nframe+1)
-                if (frm + (tmpf - nframe - 1)) > feature_size(2)
-                    tmp_features(:,t,tmpf) = tmp_features(:,t,(tmpf-1));
-                else
-                    tmp_features(:,t,tmpf) = dataset{k,1}(:,frm+(tmpf - nframe - 1));
-                end
-            end
-            
-            for tmpf = (nframe):-1:1
-                if (frm + (tmpf - nframe - 1)) < 1
-                    tmp_features(:,t,tmpf) = tmp_features(:,t,(tmpf+1));
-                else
-                    tmp_features(:,t,tmpf) = dataset{k,1}(:,frm+(tmpf - nframe - 1));
-                end
-            end
+
+            idx_range = frm-nframe:frm+nframe; % total: 2*nframe+1
+            idx_range(idx_range>feature_size(2)) = feature_size(2);
+            idx_range(idx_range<1) = 1;
+            tmp_features(:,t,:) = dataset{k,1}(:,idx_range);
+        
         end
         
         %flatten data
         n = size(tmp_features);
-        %desc = zeros(1,n(1)*n(2)*n(3));
-        %desc(1,:) = reshape(tmp_features,1,n(1)*n(2)*n(3));
-        desc(k,1:n(1)*n(2)*n(3)) = tmp_features(:)';
+        desc(k,1:prod(n)) = tmp_features(:)';
     end
-    O = n(1)*n(2)*n(3);
+    O = prod(n);
     desc = desc(:,1:O);
 end
