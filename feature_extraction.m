@@ -1,7 +1,7 @@
 %% this function is used to calculate linear descs from raw data
 %  input should have dimension of 75*nframe for kinect v2 and 60*nframe for
 %  kinect v1
-function [desc, O] = feature_extraction(raw_data, joint_selected, joint_ref, normalization, pair_selected, refCords)
+function [desc, O, joint_locs, joint_dists, joint_orients, joint_motions] = feature_extraction(raw_data, joint_selected, joint_ref, normalization, pair_selected, refCords)
 
     if nargin < 2
         joint_selected = 1:20;
